@@ -1,29 +1,28 @@
 ﻿@page "/"
+@inject IMemoryGameService MemoryGameService
 
 <div id = "body">
 
     <h1 style="margin-left: 0px">Memory Game</h1>
 
     <div id = "cardholder" style="display: grid; grid-template-columns: repeat(4, 1fr);">
-        @foreach (var card in cards) {
-             <div class="card" @onclick="() => FlipCard(card)"
-                 style="background-color: @(card.status == CardStatus.FaceUp || card.status == CardStatus.Found ? card.color : "#888");
-                        visibility: @(card.status == CardStatus.Found ? "hidden" : "visible");
-                        opacity: @(card.status == CardStatus.Found ? "0" : "1");">
+        @foreach (var card in MemoryGameService.Cards)
+        {
+            <div class="card" @onclick="() => MemoryGameService.FlipCard(card)"
+            style="background-color: @(card.status == CardStatus.FaceUp || card.status == CardStatus.Found ? card.color : "#888");
+                visibility: @(card.status == CardStatus.Found ? "hidden" : "visible");
+                opacity: @(card.status == CardStatus.Found ? "0" : "1");">
             </div>
-            }
         }
     </div>
 
-    @if (is_game_over) {
-        <div>GAME FINISHED! SCORE: @failed_attempts (lower is better.)</div>
-        <button class = "playagain_button" @onclick="() => NewRound() ">PLAY AGAIN</button>
-    
+    @if (MemoryGameService.IsGameOver){
+        <div>GAME FINISHED! SCORE: @MemoryGameService.FailedAttempts (lower is better.)</div>
+        <button class = "playagain_button" @onclick="() => MemoryGameService.NewRound() ">PLAY AGAIN</button>
     }  else {
-        <div>CURRENT_ATTEMPTS: @failed_attempts </div>
-        <div>SCORE: @pairs_found </div>
+        <div>CURRENT_ATTEMPTS: @MemoryGameService.FailedAttempts </div>
+        <div>SCORE: @MemoryGameService.PairsFound </div>
     }
-
 
     <div>Rounds played so far:</div>
     <table class = "GameRoundResultTable">
@@ -32,7 +31,8 @@
         <th>Duration</th>
         <th>Score</th>
 
-        @foreach(var round_result in GameRoundResults) {
+        @foreach (var round_result in MemoryGameService.GameRoundResults)
+        {
             <tr>
                 <td>@round_result.datetime_started</td>
                 <td>@round_result.datetime_ended</td>
@@ -44,165 +44,6 @@
 </div>
 
 
-<style>
-#body {
-    margin: 0 auto;
-    width: 600px;
-}
-
-h1 {
-    margin: 0 auto;
-}
-.card {
-    border: 1px solid black;
-    padding: 10px;
-    height: 100px;
-    width: 60px;
-    margin: 20px;
-    transition: visibility 0.5s, opacity 0.5s;
-}
-
-.GameRoundResultTable th {
-    width: 100px;
-}
-
-</style>
 
 
 
-@code {
-    private const int       maximal_found_pairs = 8;
-    private List<Card>      cards;
-    private Card            first_selected_card;
-    private Card            second_selected_card;
-    private int             pairs_found = 0;
-    private bool            is_game_over = false;
-    private int             failed_attempts = 0;
-    private bool            is_flipping = false;
-    private GameRoundResult current_GameRoundResult;
-
-    class GameRoundResult {
-        public DateTime datetime_started { get; set; }
-        public DateTime datetime_ended { get; set; }
-        public TimeSpan duration { get { return datetime_ended - datetime_started; } }
-        public int score;
-    }
-
-    private List<GameRoundResult> GameRoundResults;
-
-
-    protected override void OnInitialized() {
-        base.OnInitialized();
-        GameRoundResults = new List<GameRoundResult>();
-        NewRound();
-    }
-
-    private void NewRound() {
-        cards = GenerateFreshCards();
-        current_GameRoundResult = new GameRoundResult();
-        current_GameRoundResult.datetime_started = DateTime.Now;
-    }
-
-    private List<Card> GenerateFreshCards() {
-        // Create the list of colors
-        // TODO: fix to not rely on colors for card amounts.
-        var colors = new List<string> {
-            "red",
-            "blue",
-            "green",
-            "yellow",
-            "orange",
-            "purple",
-            "pink",
-            "brown"
-        };
-
-        // assign colors to cards
-        var fresh_cards = new List<Card>();
-        foreach (var color in colors) {
-            // Could be a loop but I find this more readable.
-            var card1 = new Card {
-                id = Guid.NewGuid().ToString(),
-                color = color,
-                status = CardStatus.FaceDown
-            };
-
-            var card2 = new Card {
-                id = Guid.NewGuid().ToString(),
-                color = color,
-                status = CardStatus.FaceDown
-            };
-            fresh_cards.Add(card1);
-            fresh_cards.Add(card2);
-        }
-
-        // Standard function for randomness instead of homegrown solution.
-        var random = new Random();
-        fresh_cards = fresh_cards.OrderBy(x => random.Next()).ToList();
-
-        return fresh_cards;
-    }
-
-    private async Task FlipCard(Card card) {
-        // Don't allow user to trigger the flip functionality if it's in progress.
-        if (is_flipping)
-            return;
-
-        is_flipping = true;
-
-        // Don't flip if found.
-        if (card.status == CardStatus.Found) {
-            is_flipping = false;
-            return;
-        }
-
-        card.status = CardStatus.FaceUp;
-
-        if (first_selected_card == null)
-            first_selected_card = card;
-        else if (second_selected_card == null) {
-            second_selected_card = card;
-            await CheckForMatch();
-        }
-
-        is_flipping = false;
-    }
-
-    private async Task CheckForMatch() {
-        if (first_selected_card.color == second_selected_card.color) {
-            await Task.Delay(2000);
-            first_selected_card.status = CardStatus.Found;
-            second_selected_card.status = CardStatus.Found;
-            pairs_found++;
-
-            if (pairs_found == maximal_found_pairs) {
-                is_game_over = true;
-                current_GameRoundResult.datetime_ended = DateTime.Now;
-                current_GameRoundResult.score = failed_attempts;
-                GameRoundResults.Add(current_GameRoundResult);
-            }
-        }
-        else {
-            await Task.Delay(2000);
-            ++failed_attempts;
-            first_selected_card.status = CardStatus.FaceDown;
-            second_selected_card.status = CardStatus.FaceDown;
-        }
-
-        first_selected_card = null;
-        second_selected_card = null;
-    }
-
-    enum CardStatus {
-        FaceDown,
-        FaceUp,
-        Found
-    }
-
-    class Card {
-        public string id { get; set; }
-        public string color { get; set; }
-        public CardStatus status { get; set; }
-    }
-
-}
