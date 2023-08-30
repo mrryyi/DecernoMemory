@@ -29,25 +29,76 @@
 
 
 
-
-#body {
-    margin: 0 auto;
-    width: 600px;
+#background {
+    background: #f0f0f0;
 }
 
-h1 {
+#container {
     margin: 0 auto;
+    width: 600px;
+    font-family: 'Arial', sans-serif;
+    background: #f0f0f0;
+}
+
+
+
+#container h1 {
+    text-align: center;
+    font-size: 2em;
+    font-weight: bold;
+    color: #333;
 }
 
 .card {
-    border: 1px solid black;
+    border: 1px solid #ddd;
     padding: 10px;
     height: 100px;
     width: 60px;
     margin: 20px;
-    transition: visibility 0.5s, opacity 0.5s;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.5s ease-in-out;
+    background-size: cover;
+}
+
+.card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+
+.playagain_button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background: #007BFF;
+    color: white;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.playagain_button:hover {
+    background: #0056b3;
+}
+
+.GameRoundResultTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.GameRoundResultTable th, .GameRoundResultTable td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
 }
 
 .GameRoundResultTable th {
-    width: 100px;
+    background: #007BFF;
+    color: white;
+}
+
+.GameRoundResultTable tr:nth-child(even) {
+    background: #f9f9f9;
 }

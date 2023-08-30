@@ -1,49 +1,52 @@
 ﻿@page "/"
 @inject IMemoryGameService MemoryGameService
 
-<div id = "body">
+<div id="background">
 
-    <h1 style="margin-left: 0px">Memory Game</h1>
+    <div id = "container">
 
-    <div id = "cardholder" style="display: grid; grid-template-columns: repeat(4, 1fr);">
-        @foreach (var card in MemoryGameService.Cards)
-        {
-            <div class="card" @onclick="() => MemoryGameService.FlipCard(card)"
-            style="background-color: @(card.status == CardStatus.FaceUp || card.status == CardStatus.Found ? card.color : "#888");
-                visibility: @(card.status == CardStatus.Found ? "hidden" : "visible");
-                opacity: @(card.status == CardStatus.Found ? "0" : "1");">
-            </div>
+        <h1 style="margin-left: 0px">Memory Game</h1>
+
+        <div id = "cardholder" style="display: grid; grid-template-columns: repeat(4, 1fr);">
+                @foreach (var card in MemoryGameService.Cards)
+                {
+                    <div class="card" @onclick="() => MemoryGameService.FlipCard(card)"
+                        style="background: @(card.status == CardStatus.FaceUp || card.status == CardStatus.Found ? card.color : "url('/images/cardback.png') no-repeat center center / cover");
+                        visibility: @(card.status == CardStatus.Found ? "hidden" : "visible");
+                        opacity: @(card.status == CardStatus.Found ? "0" : "1");">
+                    </div>
+                }
+        </div>
+
+        @if (MemoryGameService.IsGameOver){
+            <div class = >GAME FINISHED! SCORE: @MemoryGameService.FailedAttempts (lower is better.)</div>
+            <button class = "playagain_button" @onclick="() => MemoryGameService.NewRound() ">PLAY AGAIN</button>
+        }  else {
+            <div>CURRENT_ATTEMPTS: @MemoryGameService.FailedAttempts </div>
+            <div>SCORE: @MemoryGameService.PairsFound </div>
         }
+
+        <div>Rounds played so far:</div>
+        <table class = "GameRoundResultTable">
+            <th>Started</th>
+            <th>Ended</th>
+            <th>Duration</th>
+            <th>Score</th>
+
+            @foreach (var round_result in MemoryGameService.GameRoundResults)
+            {
+                <tr>
+                    <td>@round_result.datetime_started</td>
+                    <td>@round_result.datetime_ended</td>
+                    <td>@round_result.duration</td>
+                    <td>@round_result.score</td>
+                </tr>
+            }
+        </table>
     </div>
 
-    @if (MemoryGameService.IsGameOver){
-        <div>GAME FINISHED! SCORE: @MemoryGameService.FailedAttempts (lower is better.)</div>
-        <button class = "playagain_button" @onclick="() => MemoryGameService.NewRound() ">PLAY AGAIN</button>
-    }  else {
-        <div>CURRENT_ATTEMPTS: @MemoryGameService.FailedAttempts </div>
-        <div>SCORE: @MemoryGameService.PairsFound </div>
-    }
 
-    <div>Rounds played so far:</div>
-    <table class = "GameRoundResultTable">
-        <th>Started</th>
-        <th>Ended</th>
-        <th>Duration</th>
-        <th>Score</th>
-
-        @foreach (var round_result in MemoryGameService.GameRoundResults)
-        {
-            <tr>
-                <td>@round_result.datetime_started</td>
-                <td>@round_result.datetime_ended</td>
-                <td>@round_result.duration</td>
-                <td>@round_result.score</td>
-            </tr>
-        }
-    </table>
 </div>
-
-
 
 
 

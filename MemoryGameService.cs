@@ -1,7 +1,6 @@
 ﻿namespace DecernoMemory
 {
-    public interface IMemoryGameService
-    {
+    public interface IMemoryGameService {
         // Vars.
         List<Card> Cards { get; }
         int PairsFound { get; }
@@ -56,14 +55,14 @@
             // Create the list of colors
             // TODO: fix to not rely on colors for card amounts.
             var colors = new List<string> {
-                "#ff7f7f", // red
-                "blue",
-                "green",
-                "yellow",
-                "orange",
-                "purple",
-                "pink",
-                "brown"
+                "#e57373", // Red    
+                "#64b5f6", // Blue   
+                "#81c784", // Green  
+                "#fff176", // Yellow 
+                "#ffb74d", // Orange 
+                "#ba68c8", // Purple 
+                "#ff8a80", // Pink   
+                "#a1887f" // Brown  
             };
 
             // assign colors to cards
