@@ -1,5 +1,4 @@
-﻿namespace DecernoMemory
-{
+﻿namespace DecernoMemory {
     public interface IMemoryGameService {
         // Vars.
         List<Card> Cards { get; }
@@ -21,23 +20,23 @@
         private List<Card> cards;
         public  List<Card> Cards => cards;
 
-        private int pairs_found = 0;
-        public  int PairsFound => pairs_found;
+        private int     pairs_found = 0;
+        public  int     PairsFound => pairs_found;
 
-        private bool is_game_over = false;
-        public  bool IsGameOver => is_game_over;
+        private bool    is_game_over = false;
+        public  bool    IsGameOver => is_game_over;
 
-        private int failed_attempts = 0;
-        public  int FailedAttempts => failed_attempts;
+        private int     failed_attempts = 0;
+        public  int     FailedAttempts => failed_attempts;
 
-        private List<GameRoundResult> game_round_results;
-        public List<GameRoundResult> GameRoundResults => game_round_results;
+        private List<GameRoundResult>    game_round_results;
+        public  List<GameRoundResult>    GameRoundResults => game_round_results;
 
         // Internal:
-        private Card first_selected_card;
-        private Card second_selected_card;
-        private const int maximal_found_pairs = 8;
-        private bool is_flipping = false;
+        private Card            first_selected_card;
+        private Card            second_selected_card;
+        private const int       maximal_found_pairs = 8;
+        private bool            is_flipping = false;
         private GameRoundResult current_game_round_result;
 
         public MemoryGameService() {
@@ -62,10 +61,9 @@
                 "#ffb74d", // Orange 
                 "#ba68c8", // Purple 
                 "#ff8a80", // Pink   
-                "#a1887f" // Brown  
+                "#a1887f"  // Brown  
             };
 
-            // assign colors to cards
             var fresh_cards = new List<Card>();
             foreach (var color in colors) {
                 // Could be a loop but I find this more readable.
@@ -98,7 +96,7 @@
 
             is_flipping = true;
 
-            // Don't flip if found.
+            // Don't flip if clicked card is found.
             if (card.status == CardStatus.Found) {
                 is_flipping = false;
                 return;
@@ -107,7 +105,7 @@
             card.status = CardStatus.FaceUp;
 
             if (first_selected_card == null)
-                first_selected_card = card;
+                first_selected_card  = card;
             else if (second_selected_card == null) {
                 second_selected_card = card;
                 await CheckForMatch();
@@ -124,11 +122,10 @@
                 second_selected_card.status = CardStatus.Found;
                 ++pairs_found;
 
-                if (pairs_found == maximal_found_pairs)
-                {
+                if (pairs_found == maximal_found_pairs) {
                     is_game_over = true;
                     current_game_round_result.datetime_ended = DateTime.Now;
-                    current_game_round_result.score = failed_attempts;
+                    current_game_round_result.score          = failed_attempts;
                     game_round_results.Add(current_game_round_result);
                 }
             }
